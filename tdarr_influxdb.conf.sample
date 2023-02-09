@@ -1,0 +1,12 @@
+[Tdarr]
+proto = http
+hostname = 
+port = 8265
+
+[Influx]
+bucket = 
+org = 
+token = 
+proto = http
+hostname = 
+port = 8086
