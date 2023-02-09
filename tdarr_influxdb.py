@@ -4,6 +4,7 @@ import pkg_resources
 import json
 import time
 import re
+import os
 
 required = {'requests', 'configparser', 'influxdb_client'}
 installed = {pkg.key for pkg in pkg_resources.working_set}
@@ -21,7 +22,7 @@ from influxdb_client.client.write_api import SYNCHRONOUS
 ts = time.time_ns()
 
 config = configparser.RawConfigParser()
-config.read('tdarr_influxdb.conf')
+config.read(os.path.join(sys.path[0], "tdarr_influxdb.conf"))
 
 url = config['Tdarr']['proto']+"://"+config['Tdarr']['hostname']+":"+config['Tdarr']['port']+"/api/v2/cruddb"
 payload = {"data": {
