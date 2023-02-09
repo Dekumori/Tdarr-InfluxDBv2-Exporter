@@ -2,7 +2,6 @@ import sys
 import subprocess
 import pkg_resources
 import json
-import time
 import re
 import os
 
@@ -18,8 +17,6 @@ import requests
 import configparser
 import influxdb_client
 from influxdb_client.client.write_api import SYNCHRONOUS
-
-ts = time.time_ns()
 
 config = configparser.RawConfigParser()
 config.read(os.path.join(sys.path[0], "tdarr_influxdb.conf"))
