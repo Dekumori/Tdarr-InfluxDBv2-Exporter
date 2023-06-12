@@ -149,31 +149,46 @@ def parse_tdarr(tdarr_api):
             if re.search(table,item_key):
                 match = re.search(table_num,item_key)
                 items = match.group()
+
                 if type(tdarr_api[0][item_key]) == int or type(tdarr_api[0][item_key]) == float:
                     influx_point = influxdb_client.Point("tdarr").tag(tdarr_api[0]["_id"],tables[int(items)]).field("value", "{:f}".format(tdarr_api[0][item_key]))
+                    record.append(influx_point)
+
             else:
                 if type(tdarr_api[0][item_key]) == bool:
                     influx_point = influxdb_client.Point("tdarr").tag(tdarr_api[0]["_id"], item_key).field("value", "{:f}".format(tdarr_api[0][item_key]))
+                    record.append(influx_point)
+
                 elif type(tdarr_api[0][item_key]) == int or type(tdarr_api[0][item_key]) == float:
                     influx_point = influxdb_client.Point("tdarr").tag(tdarr_api[0]["_id"], item_key).field("value", "{:f}".format(tdarr_api[0][item_key]))
-                    
+                    record.append(influx_point)
+
                 elif tdarr_api[0][item_key] == "":
                     influx_point = influxdb_client.Point("tdarr").tag(tdarr_api[0]["_id"], item_key).field("value", "{:f}".format(0))
+                    record.append(influx_point)
+
                 elif item_key != "DBLoadStatus":
                     strint = re.sub(string_to_int,"",tdarr_api[0][item_key])
                     influx_point = influxdb_client.Point("tdarr").tag(tdarr_api[0]["_id"], item_key).field("value", "{:f}".format(float(strint)))
+                    record.append(influx_point)
+
                 else:
                     if tdarr_api[0][item_key] == "Stable":
                         status = 0
+
                     else:
                         status = 9999
                     influx_point = influxdb_client.Point("tdarr").tag(tdarr_api[0]["_id"], item_key).field("value", "{:f}".format(status))
+                    record.append(influx_point)
+
         elif item_key == "pies":
             library_key = 0
             while library_key < len(tdarr_api[0][item_key]):
                 library_stat = 0
                 while library_stat <= 3:
                     influx_point = influxdb_client.Point("tdarr").tag(tdarr_api[0]["_id"], libraries[library_stat]).tag("library_name", tdarr_api[0][item_key][library_key][0]).tag("library_id", tdarr_api[0][item_key][library_key][1]).field("value", "{:f}".format(tdarr_api[0][item_key][library_key][library_stat+2]))
+                    record.append(influx_point)
+
                     library_stat = library_stat + 1
                 while library_stat < len(tdarr_api[0][item_key][library_key])-4:
                     status_key = 0
@@ -181,19 +196,28 @@ def parse_tdarr(tdarr_api):
                         no_space = re.sub("\s","_",tdarr_api[0][item_key][library_key][library_stat+2][status_key]["name"])
                         if library_stat < 1:
                             influx_point = influxdb_client.Point("tdarr").tag(tdarr_api[0]["_id"], libraries[library_stat]).tag("library_name", tdarr_api[0][item_key][library_key][0]).tag("library_id", tdarr_api[0][item_key][library_key][1]).tag(field[library_stat-4], field_status[status_key]).field("value", "{:f}".format(tdarr_api[0][item_key][library_key][library_stat+2][status_key]["value"]))
+                            record.append(influx_point)
+
                         else:
                             influx_point = influxdb_client.Point("tdarr").tag(tdarr_api[0]["_id"], libraries[library_stat]).tag("library_name", tdarr_api[0][item_key][library_key][0]).tag("library_id", tdarr_api[0][item_key][library_key][1]).tag(field[library_stat-4], no_space).field("value", "{:f}".format(tdarr_api[0][item_key][library_key][library_stat+2][status_key]["value"]))
+                            record.append(influx_point)
+
                         status_key = status_key + 1
+
                     library_stat = library_stat + 1
+
                 library_key = library_key + 1
+
         elif item_key == "streamStats":
             for stream_stat in tdarr_api[0][item_key]:
                 for value_key in tdarr_api[0][item_key][stream_stat]:
                     influx_point = influxdb_client.Point("tdarr").tag(tdarr_api[0]["_id"], item_key).tag("statistic", stream_stat).tag("range", value_key).field("value", "{:f}".format(tdarr_api[0][item_key][stream_stat][value_key]))
+                    record.append(influx_point)
+
         elif item_key == "languages":
             for language_key in tdarr_api[0][item_key]:
                 influx_point = influxdb_client.Point("tdarr").tag(tdarr_api[0]["_id"], item_key).tag("language", language_key).field("value", "{:f}".format(tdarr_api[0][item_key][language_key]["count"]))
-        record.append(influx_point)
+                record.append(influx_point)
 
     return record
 
